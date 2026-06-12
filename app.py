@@ -16,7 +16,13 @@ nltk.download('wordnet', quiet=True)
 nltk.download('punkt', quiet=True)
 nltk.download('punkt_tab', quiet=True)
 nltk.download('omw-1.4', quiet=True)
+nltk.download('averaged_perceptron_tagger', quiet=True)
+nltk.download('averaged_perceptron_tagger_eng', quiet=True)
 
+# Download TextBlob corpora
+import subprocess
+subprocess.run(['python', '-m', 'textblob.download_corpora'], 
+               capture_output=True)
 # --- Page Config ---
 st.set_page_config(
     page_title="Customer Review Analyzer",
@@ -105,8 +111,11 @@ def analyze_sentiment(text):
 
 # --- Key Phrase Extraction ---
 def extract_key_phrases(text, n=8):
-    blob = TextBlob(text)
-    noun_phrases = list(blob.noun_phrases)
+    try:
+        blob = TextBlob(text)
+        noun_phrases = list(blob.noun_phrases)
+    except Exception:
+        noun_phrases = []
 
     cleaned = clean_text(text)
     words = cleaned.split()
@@ -115,7 +124,7 @@ def extract_key_phrases(text, n=8):
 
     phrases = list(set(noun_phrases + top_words))[:n]
     return phrases if phrases else top_words[:n]
-
+    
 # --- Business Recommendations ---
 def get_recommendations(sentiment, polarity, subjectivity, text):
     text_lower = text.lower()
